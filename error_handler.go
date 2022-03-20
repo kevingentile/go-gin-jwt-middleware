@@ -54,15 +54,15 @@ type GinErrorHandler func(c *gin.Context, err error)
 func DefaultGinErrorHandler(c *gin.Context, err error) {
 	switch {
 	case errors.Is(err, ErrJWTMissing):
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "JWT is missing.",
 		})
 	case errors.Is(err, ErrJWTInvalid):
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "JWT is invalid.",
 		})
 	default:
-		c.JSON(http.StatusUnauthorized, gin.H{
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "Something went wrong while checking the JWT.",
 		})
 	}
