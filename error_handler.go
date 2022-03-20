@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 )
 
@@ -42,6 +43,30 @@ func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(`{"message":"Something went wrong while checking the JWT."}`))
+	}
+}
+
+type GinErrorHandler func(c *gin.Context, err error)
+
+// DefaultErrorHandler is the default error handler implementation for the
+// JWTMiddleware. If an error handler is not provided via the WithErrorHandler
+// option this will be used.
+func DefaultGinErrorHandler(c *gin.Context, err error) {
+	c.Header("Content-Type", "application/json")
+
+	switch {
+	case errors.Is(err, ErrJWTMissing):
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "JWT is missing.",
+		})
+	case errors.Is(err, ErrJWTInvalid):
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "JWT is invalid.",
+		})
+	default:
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Something went wrong while checking the JWT.",
+		})
 	}
 }
 
