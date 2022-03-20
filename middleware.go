@@ -95,13 +95,13 @@ func (m *JWTMiddleware) CheckJWT(next http.Handler) http.Handler {
 
 // CheckJWTGin is the main JWTMiddleware function which performs the main logic with Gin support. It
 // is passed a http.Handler which will be called if the JWT passes validation.
-func (m *JWTMiddleware) CheckJWTGin(next http.Handler) gin.HandlerFunc {
+func (m *JWTMiddleware) CheckJWTGin(c *gin.Context) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		w, r := c.Writer, c.Request
 		// If we don't validate on OPTIONS and this is OPTIONS
 		// then continue onto next without validating.
 		if !m.validateOnOptions && r.Method == http.MethodOptions {
-			next.ServeHTTP(w, r)
+			c.Next()
 			return
 		}
 
@@ -117,7 +117,7 @@ func (m *JWTMiddleware) CheckJWTGin(next http.Handler) gin.HandlerFunc {
 			// If credentials are optional continue
 			// onto next without validating.
 			if m.credentialsOptional {
-				next.ServeHTTP(w, r)
+				c.Next()
 				return
 			}
 
@@ -136,6 +136,6 @@ func (m *JWTMiddleware) CheckJWTGin(next http.Handler) gin.HandlerFunc {
 		// No err means we have a valid token, so set
 		// it into the context and continue onto next.
 		r = r.Clone(context.WithValue(r.Context(), ContextKey{}, validToken))
-		next.ServeHTTP(w, r)
+		c.Next()
 	}
 }
