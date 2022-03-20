@@ -95,7 +95,7 @@ func (m *JWTMiddleware) CheckJWT(next http.Handler) http.Handler {
 
 // CheckJWTGin is the main JWTMiddleware function which performs the main logic with Gin support. It
 // is passed a http.Handler which will be called if the JWT passes validation.
-func (m *JWTMiddleware) CheckJWTGin(c *gin.Context) gin.HandlerFunc {
+func (m *JWTMiddleware) CheckJWTGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		w, r := c.Writer, c.Request
 		// If we don't validate on OPTIONS and this is OPTIONS
