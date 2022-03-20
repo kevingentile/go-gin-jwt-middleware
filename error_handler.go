@@ -52,8 +52,6 @@ type GinErrorHandler func(c *gin.Context, err error)
 // JWTMiddleware. If an error handler is not provided via the WithErrorHandler
 // option this will be used.
 func DefaultGinErrorHandler(c *gin.Context, err error) {
-	c.Header("Content-Type", "application/json")
-
 	switch {
 	case errors.Is(err, ErrJWTMissing):
 		c.JSON(http.StatusBadRequest, gin.H{
