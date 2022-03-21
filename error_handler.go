@@ -62,7 +62,7 @@ func DefaultGinErrorHandler(c *gin.Context, err error) {
 			"message": "JWT is invalid.",
 		})
 	default:
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 			"message": "Something went wrong while checking the JWT.",
 		})
 	}
