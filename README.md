@@ -1,11 +1,11 @@
 # GO JWT Middleware
 
-[![GoDoc](https://pkg.go.dev/badge/github.com/auth0/go-jwt-middleware.svg)](https://pkg.go.dev/github.com/auth0/go-jwt-middleware/v2)
-[![License](https://img.shields.io/github/license/auth0/go-jwt-middleware.svg?style=flat-square)](https://github.com/auth0/go-jwt-middleware/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/v/release/auth0/go-jwt-middleware?include_prereleases&style=flat-square)](https://github.com/auth0/go-jwt-middleware/releases)
-[![Codecov](https://img.shields.io/codecov/c/github/auth0/go-jwt-middleware?style=flat-square&token=fs2WrOXe9H)](https://codecov.io/gh/auth0/go-jwt-middleware)
-[![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fauth0%2Fgo-jwt-middleware%2Fbadge%3Fref%3Dmaster&style=flat-square)](https://github.com/auth0/go-jwt-middleware/actions?query=branch%3Amaster)
-[![Stars](https://img.shields.io/github/stars/auth0/go-jwt-middleware.svg?style=flat-square)](https://github.com/auth0/go-jwt-middleware/stargazers)
+[![GoDoc](https://pkg.go.dev/badge/github.com/kevingentile/go-gin-jwt-middleware.svg)](https://pkg.go.dev/github.com/kevingentile/go-gin-jwt-middleware/v2)
+[![License](https://img.shields.io/github/license/kevingentile/go-gin-jwt-middleware.svg?style=flat-square)](https://github.com/kevingentile/go-gin-jwt-middleware/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/v/release/kevingentile/go-gin-jwt-middleware?include_prereleases&style=flat-square)](https://github.com/kevingentile/go-gin-jwt-middleware/releases)
+[![Codecov](https://img.shields.io/codecov/c/github/kevingentile/go-gin-jwt-middleware?style=flat-square&token=fs2WrOXe9H)](https://codecov.io/gh/kevingentile/go-gin-jwt-middleware)
+[![Tests](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fauth0%2Fgo-jwt-middleware%2Fbadge%3Fref%3Dmaster&style=flat-square)](https://github.com/kevingentile/go-gin-jwt-middleware/actions?query=branch%3Amaster)
+[![Stars](https://img.shields.io/github/stars/kevingentile/go-gin-jwt-middleware.svg?style=flat-square)](https://github.com/kevingentile/go-gin-jwt-middleware)
 [![Contributors](https://img.shields.io/github/contributors/auth0/go-jwt-middleware?style=flat-square)](https://github.com/auth0/go-jwt-middleware/graphs/contributors)
 
 ---
@@ -29,7 +29,7 @@ context.
 ## Installation
 
 ```shell
-go get github.com/auth0/go-jwt-middleware/v2
+go get github.com/kevingentile/go-gin-jwt-middleware/v2
 ```
 
 [[table of contents]](#table-of-contents)

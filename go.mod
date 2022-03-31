@@ -1,12 +1,13 @@
-module github.com/auth0/go-jwt-middleware/v2
+module github.com/kevingentile/go-gin-jwt-middleware/v2
 
 go 1.17
 
 require (
+	github.com/auth0/go-jwt-middleware/v2 v2.0.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/google/go-cmp v0.5.7
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
@@ -24,7 +25,7 @@ require (
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
-	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
+	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
