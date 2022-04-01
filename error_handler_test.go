@@ -3,6 +3,7 @@ package jwtmiddleware
 import (
 	"testing"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -11,7 +12,7 @@ func Test_invalidError(t *testing.T) {
 	t.Run("Is", func(t *testing.T) {
 		err := invalidError{details: errors.New("error details")}
 
-		if !errors.Is(err, ErrJWTInvalid) {
+		if !errors.Is(err, jwtmiddleware.ErrJWTInvalid) {
 			t.Fatal("expected invalidError to be ErrJWTInvalid via errors.Is, but it was not")
 		}
 	})
