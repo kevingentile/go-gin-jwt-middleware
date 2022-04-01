@@ -4,16 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
-)
-
-var (
-	// ErrJWTMissing is returned when the JWT is missing.
-	ErrJWTMissing = errors.New("jwt missing")
-
-	// ErrJWTInvalid is returned when the JWT is invalid.
-	ErrJWTInvalid = errors.New("jwt invalid")
 )
 
 // ErrorHandler is a handler which is called when an error occurs in the
@@ -25,39 +18,18 @@ var (
 // own ErrorHandler you MUST take into consideration the error types as not
 // properly responding to them or having a poorly implemented handler could
 // result in the JWTMiddleware not functioning as intended.
-type ErrorHandler func(w http.ResponseWriter, r *http.Request, err error)
+type ErrorHandler func(c *gin.Context, err error)
 
 // DefaultErrorHandler is the default error handler implementation for the
 // JWTMiddleware. If an error handler is not provided via the WithErrorHandler
 // option this will be used.
-func DefaultErrorHandler(w http.ResponseWriter, r *http.Request, err error) {
-	w.Header().Set("Content-Type", "application/json")
-
+func DefaultErrorHandler(c *gin.Context, err error) {
 	switch {
-	case errors.Is(err, ErrJWTMissing):
-		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(`{"message":"JWT is missing."}`))
-	case errors.Is(err, ErrJWTInvalid):
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte(`{"message":"JWT is invalid."}`))
-	default:
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(`{"message":"Something went wrong while checking the JWT."}`))
-	}
-}
-
-type GinErrorHandler func(c *gin.Context, err error)
-
-// DefaultErrorHandler is the default error handler implementation for the
-// JWTMiddleware. If an error handler is not provided via the WithErrorHandler
-// option this will be used.
-func DefaultGinErrorHandler(c *gin.Context, err error) {
-	switch {
-	case errors.Is(err, ErrJWTMissing):
+	case errors.Is(err, jwtmiddleware.ErrJWTMissing):
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"message": "JWT is missing.",
 		})
-	case errors.Is(err, ErrJWTInvalid):
+	case errors.Is(err, jwtmiddleware.ErrJWTInvalid):
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 			"message": "JWT is invalid.",
 		})
@@ -78,12 +50,12 @@ type invalidError struct {
 
 // Is allows the error to support equality to ErrJWTInvalid.
 func (e invalidError) Is(target error) bool {
-	return target == ErrJWTInvalid
+	return target == jwtmiddleware.ErrJWTInvalid
 }
 
 // Error returns a string representation of the error.
 func (e invalidError) Error() string {
-	return fmt.Sprintf("%s: %s", ErrJWTInvalid, e.details)
+	return fmt.Sprintf("%s: %s", jwtmiddleware.ErrJWTInvalid, e.details)
 }
 
 // Unwrap allows the error to support equality to the

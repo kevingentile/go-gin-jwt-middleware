@@ -13,8 +13,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
 )
+
+func init() {
+	gin.SetMode(gin.TestMode)
+}
 
 func Test_GinCheckJWT(t *testing.T) {
 	const (
@@ -40,8 +45,8 @@ func Test_GinCheckJWT(t *testing.T) {
 
 	testCases := []struct {
 		name           string
-		validateToken  ValidateToken
-		options        []GinOption
+		validateToken  jwtmiddleware.ValidateToken
+		options        []Option
 		method         string
 		token          string
 		wantToken      interface{}
@@ -90,8 +95,8 @@ func Test_GinCheckJWT(t *testing.T) {
 		},
 		{
 			name: "it skips validation on OPTIONS if validateOnOptions is set to false",
-			options: []GinOption{
-				GinWithValidateOnOptions(false),
+			options: []Option{
+				WithValidateOnOptions(false),
 			},
 			method:         http.MethodOptions,
 			token:          validToken,
@@ -100,8 +105,8 @@ func Test_GinCheckJWT(t *testing.T) {
 		},
 		{
 			name: "it fails validation if there are errors with the token extractor",
-			options: []GinOption{
-				GinWithTokenExtractor(func(r *http.Request) (string, error) {
+			options: []Option{
+				WithTokenExtractor(func(r *http.Request) (string, error) {
 					return "", errors.New("token extractor error")
 				}),
 			},
@@ -111,9 +116,9 @@ func Test_GinCheckJWT(t *testing.T) {
 		},
 		{
 			name: "credentialsOptional true",
-			options: []GinOption{
-				GinWithCredentialsOptional(true),
-				GinWithTokenExtractor(func(r *http.Request) (string, error) {
+			options: []Option{
+				WithCredentialsOptional(true),
+				WithTokenExtractor(func(r *http.Request) (string, error) {
 					return "", nil
 				}),
 			},
@@ -124,9 +129,9 @@ func Test_GinCheckJWT(t *testing.T) {
 		{
 			name: "it fails validation if we do not receive any token from " +
 				"a custom extractor and credentialsOptional is false",
-			options: []GinOption{
-				GinWithCredentialsOptional(false),
-				GinWithTokenExtractor(func(r *http.Request) (string, error) {
+			options: []Option{
+				WithCredentialsOptional(false),
+				WithTokenExtractor(func(r *http.Request) (string, error) {
 					return "", nil
 				}),
 			},
@@ -141,20 +146,18 @@ func Test_GinCheckJWT(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			middleware := NewGin(testCase.validateToken, testCase.options...)
+			middleware := New(testCase.validateToken, testCase.options...)
 
 			var actualValidatedClaims interface{}
 			var handler gin.HandlerFunc = gin.HandlerFunc(func(c *gin.Context) {
-				actualValidatedClaims = c.Request.Context().Value(ContextKey{})
+				actualValidatedClaims = c.Request.Context().Value(jwtmiddleware.ContextKey{})
 				c.JSON(http.StatusOK, gin.H{
 					"message": "Authenticated.",
 				})
 			})
 
-			// testServer := httptest.NewServer(middleware.CheckJWTGin())
-			gin.SetMode(gin.TestMode)
 			ginServer := gin.New()
-			ginServer.Use(middleware.CheckJWTGin())
+			ginServer.Use(middleware.CheckJWT())
 			ginServer.Handle(testCase.method, "", handler)
 			testServer := httptest.NewServer(ginServer)
 

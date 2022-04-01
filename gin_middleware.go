@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/gin-gonic/gin"
 )
 
-type GinJWTMiddleware struct {
-	validateToken       ValidateToken
-	errorHandler        GinErrorHandler
-	tokenExtractor      TokenExtractor
+type JWTMiddleware struct {
+	validateToken       jwtmiddleware.ValidateToken
+	errorHandler        ErrorHandler
+	tokenExtractor      jwtmiddleware.TokenExtractor
 	credentialsOptional bool
 	validateOnOptions   bool
 }
@@ -19,12 +20,12 @@ type GinJWTMiddleware struct {
 // New constructs a new JWTMiddleware instance with the supplied options.
 // It requires a ValidateToken function to be passed in, so it can
 // properly validate tokens.
-func NewGin(validateToken ValidateToken, opts ...GinOption) *GinJWTMiddleware {
-	m := &GinJWTMiddleware{
+func New(validateToken jwtmiddleware.ValidateToken, opts ...Option) *JWTMiddleware {
+	m := &JWTMiddleware{
 		validateToken:       validateToken,
-		errorHandler:        DefaultGinErrorHandler,
+		errorHandler:        DefaultErrorHandler,
 		credentialsOptional: false,
-		tokenExtractor:      AuthHeaderTokenExtractor,
+		tokenExtractor:      jwtmiddleware.AuthHeaderTokenExtractor,
 		validateOnOptions:   true,
 	}
 
@@ -37,7 +38,7 @@ func NewGin(validateToken ValidateToken, opts ...GinOption) *GinJWTMiddleware {
 
 // CheckJWTGin is the main JWTMiddleware function which performs the main logic with Gin support. It
 // is passed a http.Handler which will be called if the JWT passes validation.
-func (m *GinJWTMiddleware) CheckJWTGin() gin.HandlerFunc {
+func (m *JWTMiddleware) CheckJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// If we don't validate on OPTIONS and this is OPTIONS
 		// then continue onto next without validating.
@@ -63,7 +64,7 @@ func (m *GinJWTMiddleware) CheckJWTGin() gin.HandlerFunc {
 			}
 
 			// Credentials were not optional so we error.
-			m.errorHandler(c, ErrJWTMissing)
+			m.errorHandler(c, jwtmiddleware.ErrJWTMissing)
 			return
 		}
 
@@ -76,7 +77,7 @@ func (m *GinJWTMiddleware) CheckJWTGin() gin.HandlerFunc {
 
 		// No err means we have a valid token, so set
 		// it into the context and continue onto next.
-		c.Request = c.Request.Clone(context.WithValue(c.Request.Context(), ContextKey{}, validToken))
+		c.Request = c.Request.Clone(context.WithValue(c.Request.Context(), jwtmiddleware.ContextKey{}, validToken))
 		c.Next()
 	}
 }

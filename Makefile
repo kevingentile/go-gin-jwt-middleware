@@ -1,5 +1,11 @@
 .DEFAULT_GOAL := help
 
+.DEFAULT_GOAL := help
+
+.PHONY: setup
+setup: ## install linter
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.45.2
+	
 .PHONY: test
 test: ## Run tests.
 	go test -race -cover -covermode=atomic -coverprofile=coverage.out ./...
