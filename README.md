@@ -1,4 +1,4 @@
-# GO JWT Middleware
+# GO Gin JWT Middleware
 
 [![GoDoc](https://pkg.go.dev/badge/github.com/kevingentile/go-gin-jwt-middleware.svg)](https://pkg.go.dev/github.com/kevingentile/go-gin-jwt-middleware/v2)
 [![License](https://img.shields.io/github/license/kevingentile/go-gin-jwt-middleware.svg?style=flat-square)](https://github.com/kevingentile/go-gin-jwt-middleware/blob/master/LICENSE)
@@ -10,19 +10,10 @@
 
 ---
 
-Golang middleware to check and validate [JWTs](jwt.io) in the request and add the valid token contents to the request 
+Gin extension for the [auth0/go-jwt-middleware/v2](https://github.com/auth0/go-jwt-middleware) Golang middleware to check and validate [JWTs](jwt.io) in the request and add the valid token contents to the request 
 context.
 
--------------------------------------
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [Migration Guide](#migration-guide)
-- [Issue Reporting](#issue-reporting)
-- [Author](#author)
-- [License](#license)
+This is not an Auth0 project. For the latest features and fixes the offical middlware can be found at [auth0/go-jwt-middleware/v2](https://github.com/auth0/go-jwt-middleware)
 
 -------------------------------------
 
@@ -32,7 +23,6 @@ context.
 go get github.com/kevingentile/go-gin-jwt-middleware/v2
 ```
 
-[[table of contents]](#table-of-contents)
 
 ## Usage
 
@@ -41,26 +31,14 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"log"
 	"net/http"
 
-	"github.com/auth0/go-jwt-middleware/v2"
+	jwtmiddleware "github.com/auth0/go-jwt-middleware/v2"
 	"github.com/auth0/go-jwt-middleware/v2/validator"
+	"github.com/gin-gonic/gin"
+	jwtginmiddleware "github.com/kevingentile/go-gin-jwt-middleware/v2"
 )
-
-var handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	claims := r.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
-
-	payload, err := json.Marshal(claims)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(payload)
-})
 
 func main() {
 	keyFunc := func(ctx context.Context) (interface{}, error) {
@@ -78,74 +56,31 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to set up the validator: %v", err)
 	}
+	auth0Middleware := jwtginmiddleware.New(
+		jwtValidator.ValidateToken,
+	)
 
-	// Set up the middleware.
-	middleware := jwtmiddleware.New(jwtValidator.ValidateToken)
+	// Creates a gin router with default middleware:
+	// logger and recovery (crash-free) middleware
+	router := gin.Default()
 
-	http.ListenAndServe("0.0.0.0:3000", middleware.CheckJWT(handler))
+	authGroup := router.Group("auth")
+	authGroup.Use(auth0Middleware.CheckJWT())
+
+	//auth/claims
+	authGroup.GET("/claims", func(c *gin.Context) {
+		// Write claims JSON blob
+		claims := c.Request.Context().Value(jwtmiddleware.ContextKey{}).(*validator.ValidatedClaims)
+		c.JSON(http.StatusOK, claims)
+	})
+
+	// By default it serves on :8080 unless a
+	// PORT environment variable was defined.
+	router.Run()
+
 }
 ```
-
-After running that code (`go run main.go`) you can then curl the http server from another terminal:
-
-```
-$ curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJpc3MiOiJnby1qd3QtbWlkZGxld2FyZS1leGFtcGxlIiwiYXVkIjoiZ28tand0LW1pZGRsZXdhcmUtZXhhbXBsZSJ9.xcnkyPYu_b3qm2yeYuEgr5R5M5t4pN9s04U1ya53-KM" localhost:3000
-```
-
-That should give you the following response:
-
-```
-{
-  "CustomClaims": null,
-  "RegisteredClaims": {
-    "iss": "go-jwt-middleware-example",
-    "aud": "go-jwt-middleware-example",
-    "sub": "1234567890",
-    "iat": 1516239022
-  }
-}
-```
-
-The JWT included in the Authorization header above is signed with `secret`.
-
-To test how the response would look like with an invalid token:
-
-```
-$ curl -v -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.yiDw9IDNCa1WXCoDfPR_g356vSsHBEerqh9IvnD49QE" localhost:3000
-```
-
-That should give you the following response:
-
-```
-...
-< HTTP/1.1 401 Unauthorized
-< Content-Type: application/json
-{"message":"JWT is invalid."}
-...
-```
-
-[[table of contents]](#table-of-contents)
-
-## Migration Guide
-
-If you are moving from v1 to v2 please check our [migration guide](MIGRATION_GUIDE.md).
-
-[[table of contents]](#table-of-contents)
-
-## Issue Reporting
-
-If you have found a bug or if you have a feature request, please report them at this repository issues section. Please do not report security vulnerabilities on the public GitHub issue tracker. The [Responsible Disclosure Program](https://auth0.com/whitehat) details the procedure for disclosing security issues.
-
-[[table of contents]](#table-of-contents)
-
-## Author
-
-[Auth0](https://auth0.com/)
-
-[[table of contents]](#table-of-contents)
 
 ## License
 
 This project is licensed under the MIT license. See the [LICENSE](LICENSE) file for more info.
-
-[[table of contents]](#table-of-contents)
